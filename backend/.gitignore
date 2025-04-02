@@ -1,0 +1,43 @@
+# Database dumps & backups
+*.sql
+*.sql.gz
+*.dump
+*.backup
+*.bak
+
+# PostgreSQL
+pgdata/
+postgresql.log
+pg_log/
+*.pgdump
+*.pgsql
+pg_hba.conf
+pg_ident.conf
+
+# MySQL / MariaDB
+*.myd
+*.myi
+*.frm
+*.ibdata*
+*.ib_logfile*
+*.sql.bak
+mysqld.log
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Logs & temporary files
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docker & Kubernetes
+docker-compose.override.yml
+.kubernetes/

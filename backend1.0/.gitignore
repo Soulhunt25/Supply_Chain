@@ -1,0 +1,65 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-error.log
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+logs/
+*.log
+debug.log
+error.log
+server.log
+/logs
+/logs/*
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+dump.rdb
+*.sql
+/data/
+mongodb.log
+
+# Build artifacts
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# VS Code & IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# Docker & Deployment
+docker-compose.yml
+Dockerfile
+*.dockerfile
+.kubernetes/
+terraform.tfstate
+terraform.tfstate.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+*.bak
+*.orig
