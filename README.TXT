@@ -24,6 +24,8 @@ DB_URI=mongodb+srv://pranjalorient7:xwVanOQ1am5vUlNW@cluster0.dhyeech.mongodb.ne
 PORT=5001
 JWT_SECRET=Supply_chain
 
+xwVanOQ1am5vUlNW is the password for the mongodb database
+
 
 .env file for postgresql
 
