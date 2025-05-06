@@ -21,6 +21,9 @@ const Login = () => {
         { username, password }
       );
       console.log("Login response:", response.data);
+      localStorage.setItem("token", response.data.token);
+      //Optional: Save user role
+      localStorage.setItem("role", response.data.role); 
       login(response.data.token, response.data.role);
       navigate("/dashboard");
     } catch (error) {

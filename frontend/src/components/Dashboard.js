@@ -27,8 +27,13 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { useAuth } from "../AuthContext";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 const Dashboard = () => {
+  const { token } = useAuth();
   const [kpis, setKpis] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -36,18 +41,22 @@ const Dashboard = () => {
     orders: [],
     productCategories: [],
   });
-  const [blockchainData, setBlockchainData] = useState([]);
+  const [blockchainData, setBlockchainData] = useState([]); // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        const authHeader = {
+          headers: { Authorization: `Bearer ${token}` },
+        };
+
         const [productsResponse, ordersResponse, blockchainResponse] =
           await Promise.all([
-            axiosInstance.get("/products"),
-            axiosInstance.get("/orders"),
-            axiosInstance.get("/blockchain"),
+            axios.get("http://localhost:5001/api/products", authHeader),
+            axios.get("http://localhost:5001/api/orders", authHeader),
+            axios.get("http://localhost:5001/api/blockchain", authHeader),
           ]);
 
         const totalProducts = productsResponse.data.length;
@@ -66,6 +75,8 @@ const Dashboard = () => {
           orders: ordersResponse.data,
           productCategories,
         });
+
+        setBlockchainData(blockchainResponse.data); // eslint-disable-next-line no-unused-vars
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
         setError(error.message);
@@ -75,7 +86,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [token]);
 
   const calculateAverageOrderValue = (orders) => {
     if (orders.length === 0) return 0;
@@ -111,127 +122,50 @@ const Dashboard = () => {
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
-  const orderTrendData = calculateOrderTrend(kpis.orders);
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+  const orderTrendData = calculateOrderTrend(kpis.orders); // eslint-disable-next-line no-unused-vars
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]; // eslint-disable-next-line no-unused-vars
 
   return (
     <Container maxWidth="lg">
       <Typography variant="h4" gutterBottom>
-        Dashboard
+        Healthcare Inventory Dashboard
       </Typography>
+
+      <Box sx={{ textAlign: "center", my: 2 }}>
+        <img
+          src="https://undraw.co/api/illustrations/undraw_doctors_hwty.svg"
+          alt="Healthcare Illustration"
+          style={{ maxWidth: "100%", height: 200 }}
+        />
+      </Box>
+
       <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3}>
-            <Box p={2}>
-              <Typography variant="h6">Total Products</Typography>
-              <Typography variant="h4">{kpis.totalProducts}</Typography>
+        <Grid item xs={12} sm={4}>
+          <Paper elevation={3} sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}>
+            <InventoryIcon color="primary" fontSize="large" />
+            <Box>
+              <Typography variant="subtitle2">Total Products</Typography>
+              <Typography variant="h6">{kpis.totalProducts}</Typography>
             </Box>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3}>
-            <Box p={2}>
-              <Typography variant="h6">Total Orders</Typography>
-              <Typography variant="h4">{kpis.totalOrders}</Typography>
+
+        <Grid item xs={12} sm={4}>
+          <Paper elevation={3} sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}>
+            <ShoppingCartIcon color="secondary" fontSize="large" />
+            <Box>
+              <Typography variant="subtitle2">Total Orders</Typography>
+              <Typography variant="h6">{kpis.totalOrders}</Typography>
             </Box>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3}>
-            <Box p={2}>
-              <Typography variant="h6">Average Order Quantity</Typography>
-              <Typography variant="h4">
-                {kpis.averageOrderValue.toFixed(2)}
-              </Typography>
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3}>
-            <Box p={2} height={400}>
-              <Typography variant="h6">Order Trend</Typography>
-              {orderTrendData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={orderTrendData}>
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="count" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <Typography>No order trend data available.</Typography>
-              )}
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3}>
-            <Box p={2} height={400}>
-              <Typography variant="h6">Product Categories</Typography>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={kpis.productCategories}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
-                  >
-                    {kpis.productCategories.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item xs={12}>
-          <Paper elevation={3}>
-            <Box p={2}>
-              <Typography variant="h6">Blockchain Visualization</Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Block #</TableCell>
-                      <TableCell>Hash</TableCell>
-                      <TableCell>Previous Hash</TableCell>
-                      <TableCell>Timestamp</TableCell>
-                      <TableCell>Data</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {blockchainData.map((block, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>{block.hash.substring(0, 10)}...</TableCell>
-                        <TableCell>
-                          {block.previous_hash.substring(0, 10)}...
-                        </TableCell>
-                        <TableCell>
-                          {new Date(block.timestamp).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          {JSON.stringify(block.data).substring(0, 20)}...
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+
+        <Grid item xs={12} sm={4}>
+          <Paper elevation={3} sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}>
+            <LocalHospitalIcon sx={{ color: "#4caf50" }} fontSize="large" />
+            <Box>
+              <Typography variant="subtitle2">Avg. Order Quantity</Typography>
+              <Typography variant="h6">{kpis.averageOrderValue.toFixed(2)}</Typography>
             </Box>
           </Paper>
         </Grid>

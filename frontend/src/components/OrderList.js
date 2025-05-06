@@ -13,6 +13,7 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Alert,
 } from "@mui/material";
 
 const OrderList = () => {
@@ -23,10 +24,19 @@ const OrderList = () => {
     quantity: "",
     status: "pending",
   });
+  const [tokenMissing, setTokenMissing] = useState(false);
 
   useEffect(() => {
-    fetchOrders();
-    fetchProducts();
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.warn("Token not found. Cannot fetch protected data.");
+      setTokenMissing(true);
+      return;
+    }
+
+    fetchOrders(token);
+    fetchProducts(token);
   }, []);
 
   const fetchOrders = async () => {
@@ -53,12 +63,19 @@ const OrderList = () => {
 
   const handleAddOrder = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Cannot add order: User not authenticated.");
+      return;
+    }
+
     try {
       await axios.post("http://localhost:5001/api/orders", newOrder, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setNewOrder({ product_id: "", quantity: "", status: "pending" });
-      fetchOrders();
+      fetchOrders(token);
     } catch (error) {
       console.error("Error adding order", error);
     }
@@ -69,6 +86,13 @@ const OrderList = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Orders
       </Typography>
+
+      {tokenMissing && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          You are not logged in. Please log in to view and manage orders.
+        </Alert>
+      )}
+
       <List>
         {orders.map((order) => (
           <ListItem key={order.id}>
@@ -79,6 +103,7 @@ const OrderList = () => {
           </ListItem>
         ))}
       </List>
+
       <Box component="form" onSubmit={handleAddOrder} sx={{ mt: 2 }}>
         <FormControl fullWidth margin="normal">
           <InputLabel>Product</InputLabel>
@@ -95,6 +120,7 @@ const OrderList = () => {
             ))}
           </Select>
         </FormControl>
+
         <TextField
           fullWidth
           margin="normal"
@@ -105,6 +131,7 @@ const OrderList = () => {
             setNewOrder({ ...newOrder, quantity: e.target.value })
           }
         />
+
         <FormControl fullWidth margin="normal">
           <InputLabel>Status</InputLabel>
           <Select
@@ -119,6 +146,7 @@ const OrderList = () => {
             <MenuItem value="delivered">Delivered</MenuItem>
           </Select>
         </FormControl>
+
         <Button type="submit" variant="contained" sx={{ mt: 2 }}>
           Add Order
         </Button>
